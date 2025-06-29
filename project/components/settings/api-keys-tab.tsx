@@ -40,9 +40,11 @@ export function ApiKeysTab() {
   const handleSave = () => {
     Object.entries(apiKeys).forEach(([key, value]) => {
       localStorage.setItem(`${key}-api-key`, value);
+      console.log(`[ApiKeysTab] Stored in localStorage: ${key}-api-key = ${value ? '***** (hidden)' : 'empty'}`);
     });
     toast.success('API keys saved successfully');
     window.dispatchEvent(new CustomEvent('api-key-saved'));
+    console.log('[ApiKeysTab] Dispatched custom event: api-key-saved');
   };
 
   const toggleShowKey = (keyName: string) => {
@@ -135,26 +137,8 @@ export function ApiKeysTab() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header section - fixed at top */}
-      <div className="flex-shrink-0 space-y-4 mb-4">
-        {/* Test input to verify functionality */}
-        <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
-          <h3 className="text-red-300 mb-2">Test Input (should be interactive):</h3>
-          <Input
-            type="text"
-            placeholder="Test input - try typing here"
-            className="bg-white/10 border border-red-500/50 text-white"
-            onChange={(e) => console.log('Test input changed:', e.target.value)}
-          />
-        </div>
-        
-        <div className="text-sm text-cyan-400/80 bg-black/20 p-4 rounded-lg border border-cyan-500/20">
-          Configure your AI service API keys to enable various AI capabilities. All keys are stored locally in your browser for security.
-        </div>
-      </div>
-
       {/* Scrollable API keys section */}
-      <div className="max-h-[50vh] overflow-y-auto space-y-4 pr-2">
+      <div className="flex-grow max-h-[50vh] overflow-y-auto space-y-4 pr-2">
         {apiServices.map((service) => {
           const IconComponent = service.icon;
           return (
@@ -178,36 +162,19 @@ export function ApiKeysTab() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <Label htmlFor={`${service.id}-key`} className="sr-only">
-                      {service.name} API Key
-                    </Label>
-                    <Input
-                      id={`${service.id}-key`}
-                      type={showKeys[service.id] ? 'text' : 'password'}
-                      value={apiKeys[service.id as keyof typeof apiKeys]}
-                      onChange={(e) => {
-                        console.log('Input changed:', service.id, e.target.value);
-                        updateApiKey(service.id, e.target.value);
-                      }}
-                      onFocus={(e) => {
-                        console.log('Input focused:', service.id);
-                      }}
-                      onBlur={(e) => {
-                        console.log('Input blurred:', service.id);
-                      }}
-                      placeholder={`Enter your ${service.name} API key (${service.placeholder})`}
-                      className="font-mono text-sm bg-white/10 border border-cyan-500/50 text-white placeholder:text-gray-400 relative z-20 w-full"
-                      autoComplete="off"
-                      style={{ 
-                        position: 'relative',
-                        zIndex: 20,
-                        pointerEvents: 'auto',
-                        cursor: 'text'
-                      }}
-                    />
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id={`${service.id}-key`}
+                    type={showKeys[service.id] ? 'text' : 'password'}
+                    value={apiKeys[service.id as keyof typeof apiKeys]}
+                    onChange={(e) => {
+                      console.log('Input changed:', service.id, e.target.value);
+                      updateApiKey(service.id, e.target.value);
+                    }}
+                    placeholder={`Enter your ${service.name} API key (${service.placeholder})`}
+                    className="font-mono text-sm bg-white/10 border border-cyan-500/50 text-white placeholder:text-gray-400 flex-grow"
+                    autoComplete="off"
+                  />
                   <Button
                     type="button"
                     variant="outline"
@@ -217,20 +184,14 @@ export function ApiKeysTab() {
                   >
                     {showKeys[service.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-cyan-400/60">
-                    Get your API key from {service.name}
-                  </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => openLink(service.link)}
                     className="text-xs gap-1 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 px-2 py-1 h-auto"
+                    title={`Open ${service.name} Dashboard`}
                   >
-                    Open Dashboard
                     <ExternalLink className="w-3 h-3" />
                   </Button>
                 </div>

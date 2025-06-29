@@ -25,7 +25,9 @@ export function ChatInterface() {
   useEffect(() => {
     const checkApiKey = () => {
       const apiKey = localStorage.getItem('openai-api-key');
-      setHasApiKey(!!apiKey);
+      const hasKey = !!apiKey;
+      setHasApiKey(hasKey);
+      console.log(`[ChatInterface] API Key Check: hasApiKey = ${hasKey}`);
     };
 
     // Check initially
@@ -34,6 +36,7 @@ export function ChatInterface() {
     // Listen for storage changes
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'openai-api-key') {
+        console.log('[ChatInterface] Storage event detected for openai-api-key');
         checkApiKey();
       }
     };
@@ -42,6 +45,7 @@ export function ChatInterface() {
     
     // Also listen for custom events when API key is saved
     const handleApiKeySaved = () => {
+      console.log('[ChatInterface] Custom event "api-key-saved" received.');
       checkApiKey();
     };
 
