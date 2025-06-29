@@ -134,6 +134,17 @@ export function ApiKeysTab() {
 
   return (
     <div className="space-y-4">
+      {/* Test input to verify functionality */}
+      <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+        <h3 className="text-red-300 mb-2">Test Input (should be interactive):</h3>
+        <Input
+          type="text"
+          placeholder="Test input - try typing here"
+          className="bg-white/10 border border-red-500/50 text-white"
+          onChange={(e) => console.log('Test input changed:', e.target.value)}
+        />
+      </div>
+      
       <div className="text-sm text-cyan-400/80 bg-black/20 p-4 rounded-lg border border-cyan-500/20">
         Configure your AI service API keys to enable various AI capabilities. All keys are stored locally in your browser for security.
       </div>
@@ -143,8 +154,7 @@ export function ApiKeysTab() {
           {apiServices.map((service) => {
             const IconComponent = service.icon;
             return (
-              <Card key={service.id} className="relative overflow-hidden bg-black/40 border-cyan-500/20 hover:border-cyan-400/40 transition-all duration-200">
-                <div className={`absolute inset-0 bg-gradient-to-r ${service.color} opacity-5`} />
+              <Card key={service.id} className="relative bg-black/40 border-cyan-500/20 hover:border-cyan-400/40 transition-all duration-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className={`flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r ${service.color} shadow-lg`}>
@@ -165,7 +175,7 @@ export function ApiKeysTab() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex gap-2">
-                    <div className="flex-1">
+                    <div className="flex-1 relative">
                       <Label htmlFor={`${service.id}-key`} className="sr-only">
                         {service.name} API Key
                       </Label>
@@ -173,10 +183,25 @@ export function ApiKeysTab() {
                         id={`${service.id}-key`}
                         type={showKeys[service.id] ? 'text' : 'password'}
                         value={apiKeys[service.id as keyof typeof apiKeys]}
-                        onChange={(e) => updateApiKey(service.id, e.target.value)}
+                        onChange={(e) => {
+                          console.log('Input changed:', service.id, e.target.value);
+                          updateApiKey(service.id, e.target.value);
+                        }}
+                        onFocus={(e) => {
+                          console.log('Input focused:', service.id);
+                        }}
+                        onBlur={(e) => {
+                          console.log('Input blurred:', service.id);
+                        }}
                         placeholder={`Enter your ${service.name} API key (${service.placeholder})`}
-                        className="font-mono text-sm bg-black/20 border-cyan-500/30 focus:border-cyan-400/60 text-cyan-100 placeholder:text-cyan-400/50"
+                        className="font-mono text-sm bg-white/10 border border-cyan-500/50 text-white placeholder:text-gray-400 relative z-20 w-full"
                         autoComplete="off"
+                        style={{ 
+                          position: 'relative',
+                          zIndex: 20,
+                          pointerEvents: 'auto',
+                          cursor: 'text'
+                        }}
                       />
                     </div>
                     <Button
