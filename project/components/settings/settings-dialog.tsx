@@ -9,7 +9,10 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ApiKeysTab } from './api-keys-tab';
-import { Key, Palette, Zap } from 'lucide-react';
+import { GoogleAuth } from './google-auth';
+import { Key, Palette, Zap, Mail, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -19,7 +22,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] bg-black/95 backdrop-blur-xl border-cyan-500/30 overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] bg-black/95 backdrop-blur-xl border-cyan-500/30 overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-cyan-100">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 shadow-lg shadow-cyan-500/25">
@@ -32,9 +35,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="mt-4 overflow-hidden">
-          <Tabs defaultValue="api" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-cyan-500/20">
+        <div className="flex-1 mt-4 overflow-hidden flex flex-col min-h-0 h-full">
+          <Tabs defaultValue="api" className="w-full flex-1 flex flex-col min-h-0 h-full">
+            <TabsList className="grid w-full grid-cols-3 bg-black/40 border border-cyan-500/20">
               <TabsTrigger 
                 value="api" 
                 className="gap-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-100 text-cyan-400 hover:text-cyan-300"
@@ -49,10 +52,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <Palette className="w-4 h-4" />
                 Appearance
               </TabsTrigger>
+              <TabsTrigger 
+                value="google" 
+                className="gap-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-100 text-cyan-400 hover:text-cyan-300"
+              >
+                <Mail className="w-4 h-4" />
+                Google Authentication
+              </TabsTrigger>
             </TabsList>
             
-            <div className="mt-4 overflow-hidden">
-              <TabsContent value="api" className="space-y-4 m-0 overflow-hidden">
+            <div className="mt-4 overflow-hidden flex-1 flex flex-col min-h-0 h-full">
+              <TabsContent value="api" className="space-y-4 m-0 overflow-hidden flex-1 flex flex-col min-h-0 h-full">
                 <ApiKeysTab />
               </TabsContent>
               
@@ -69,6 +79,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <p className="text-xs opacity-75">Stay tuned for custom color schemes, background options, and layout preferences.</p>
                   </div>
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="google" className="space-y-4 m-0">
+                <GoogleAuth />
               </TabsContent>
             </div>
           </Tabs>

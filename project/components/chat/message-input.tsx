@@ -24,6 +24,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
     e.preventDefault();
     if ((message.trim() || selectedFiles.length > 0) && !isLoading) {
       onSendMessage(message.trim(), selectedFiles);
+      // Clear input after sending
       setMessage('');
       setSelectedFiles([]);
       if (textareaRef.current) {

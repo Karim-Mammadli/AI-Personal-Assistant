@@ -42,6 +42,7 @@ export function ApiKeysTab() {
       localStorage.setItem(`${key}-api-key`, value);
     });
     toast.success('API keys saved successfully');
+    window.dispatchEvent(new CustomEvent('api-key-saved'));
   };
 
   const toggleShowKey = (keyName: string) => {
@@ -133,111 +134,114 @@ export function ApiKeysTab() {
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Test input to verify functionality */}
-      <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
-        <h3 className="text-red-300 mb-2">Test Input (should be interactive):</h3>
-        <Input
-          type="text"
-          placeholder="Test input - try typing here"
-          className="bg-white/10 border border-red-500/50 text-white"
-          onChange={(e) => console.log('Test input changed:', e.target.value)}
-        />
-      </div>
-      
-      <div className="text-sm text-cyan-400/80 bg-black/20 p-4 rounded-lg border border-cyan-500/20">
-        Configure your AI service API keys to enable various AI capabilities. All keys are stored locally in your browser for security.
-      </div>
-      
-      <ScrollArea className="h-[50vh]">
-        <div className="space-y-4 pr-4">
-          {apiServices.map((service) => {
-            const IconComponent = service.icon;
-            return (
-              <Card key={service.id} className="relative bg-black/40 border-cyan-500/20 hover:border-cyan-400/40 transition-all duration-200">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r ${service.color} shadow-lg`}>
-                      <IconComponent className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-base text-cyan-100">{service.name}</CardTitle>
-                        {service.required && (
-                          <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">
-                            Required
-                          </span>
-                        )}
-                      </div>
-                      <CardDescription className="text-sm text-cyan-400/70">{service.description}</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <Label htmlFor={`${service.id}-key`} className="sr-only">
-                        {service.name} API Key
-                      </Label>
-                      <Input
-                        id={`${service.id}-key`}
-                        type={showKeys[service.id] ? 'text' : 'password'}
-                        value={apiKeys[service.id as keyof typeof apiKeys]}
-                        onChange={(e) => {
-                          console.log('Input changed:', service.id, e.target.value);
-                          updateApiKey(service.id, e.target.value);
-                        }}
-                        onFocus={(e) => {
-                          console.log('Input focused:', service.id);
-                        }}
-                        onBlur={(e) => {
-                          console.log('Input blurred:', service.id);
-                        }}
-                        placeholder={`Enter your ${service.name} API key (${service.placeholder})`}
-                        className="font-mono text-sm bg-white/10 border border-cyan-500/50 text-white placeholder:text-gray-400 relative z-20 w-full"
-                        autoComplete="off"
-                        style={{ 
-                          position: 'relative',
-                          zIndex: 20,
-                          pointerEvents: 'auto',
-                          cursor: 'text'
-                        }}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleShowKey(service.id)}
-                      className="px-3 bg-black/20 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
-                    >
-                      {showKeys[service.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-cyan-400/60">
-                      Get your API key from {service.name}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openLink(service.link)}
-                      className="text-xs gap-1 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 px-2 py-1 h-auto"
-                    >
-                      Open Dashboard
-                      <ExternalLink className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+    <div className="flex flex-col h-full">
+      {/* Header section - fixed at top */}
+      <div className="flex-shrink-0 space-y-4 mb-4">
+        {/* Test input to verify functionality */}
+        <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+          <h3 className="text-red-300 mb-2">Test Input (should be interactive):</h3>
+          <Input
+            type="text"
+            placeholder="Test input - try typing here"
+            className="bg-white/10 border border-red-500/50 text-white"
+            onChange={(e) => console.log('Test input changed:', e.target.value)}
+          />
         </div>
-      </ScrollArea>
-      
-      <div className="flex justify-end pt-4 border-t border-cyan-500/20">
+        
+        <div className="text-sm text-cyan-400/80 bg-black/20 p-4 rounded-lg border border-cyan-500/20">
+          Configure your AI service API keys to enable various AI capabilities. All keys are stored locally in your browser for security.
+        </div>
+      </div>
+
+      {/* Scrollable API keys section */}
+      <div className="max-h-[50vh] overflow-y-auto space-y-4 pr-2">
+        {apiServices.map((service) => {
+          const IconComponent = service.icon;
+          return (
+            <Card key={service.id} className="relative bg-black/40 border-cyan-500/20 hover:border-cyan-400/40 transition-all duration-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r ${service.color} shadow-lg`}>
+                    <IconComponent className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-base text-cyan-100">{service.name}</CardTitle>
+                      {service.required && (
+                        <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full border border-red-500/30">
+                          Required
+                        </span>
+                      )}
+                    </div>
+                    <CardDescription className="text-sm text-cyan-400/70">{service.description}</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Label htmlFor={`${service.id}-key`} className="sr-only">
+                      {service.name} API Key
+                    </Label>
+                    <Input
+                      id={`${service.id}-key`}
+                      type={showKeys[service.id] ? 'text' : 'password'}
+                      value={apiKeys[service.id as keyof typeof apiKeys]}
+                      onChange={(e) => {
+                        console.log('Input changed:', service.id, e.target.value);
+                        updateApiKey(service.id, e.target.value);
+                      }}
+                      onFocus={(e) => {
+                        console.log('Input focused:', service.id);
+                      }}
+                      onBlur={(e) => {
+                        console.log('Input blurred:', service.id);
+                      }}
+                      placeholder={`Enter your ${service.name} API key (${service.placeholder})`}
+                      className="font-mono text-sm bg-white/10 border border-cyan-500/50 text-white placeholder:text-gray-400 relative z-20 w-full"
+                      autoComplete="off"
+                      style={{ 
+                        position: 'relative',
+                        zIndex: 20,
+                        pointerEvents: 'auto',
+                        cursor: 'text'
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleShowKey(service.id)}
+                    className="px-3 bg-black/20 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                  >
+                    {showKeys[service.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-cyan-400/60">
+                    Get your API key from {service.name}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openLink(service.link)}
+                    className="text-xs gap-1 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 px-2 py-1 h-auto"
+                  >
+                    Open Dashboard
+                    <ExternalLink className="w-3 h-3" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Save button - fixed at bottom */}
+      <div className="flex-shrink-0 w-full bg-black/90 pt-4 pb-4 flex justify-end z-20 border-t border-cyan-500/20 mt-4">
         <Button 
           type="button"
           onClick={handleSave}
