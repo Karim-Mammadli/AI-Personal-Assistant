@@ -21,14 +21,24 @@ const AGENT_PROMPT = ChatPromptTemplate.fromMessages([
 ]);
 
 // This is a simple in-memory check. In a real app, use a proper session store.
-let googleAuthCheckDone = false; 
+let googleAuthCheckDone = false;
+
+// Helper: Detect if message requires Google services
+function requiresGoogleAuth(message: string): boolean {
+  const keywords = [
+    'calendar', 'event', 'schedule', 'meeting', 'invite',
+    'gmail', 'email', 'mail', 'inbox', 'send email', 'compose email'
+  ];
+  const lower = message.toLowerCase();
+  return keywords.some((kw) => lower.includes(kw));
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { message, history } = await request.json();
 
-    // Check for Google Auth on the first message of a session
-    if (!googleAuthCheckDone) {
+    // Only check for Google Auth if the message is Google-related
+    if (requiresGoogleAuth(message) && !googleAuthCheckDone) {
         const auth = getOAuth2Client();
         if(!auth.credentials.access_token) {
             const authUrl = getGoogleAuthUrl();
