@@ -1,12 +1,31 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Message } from '@/types/chat';
 import { toast } from 'sonner';
 
 export function useMessages() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('chat-messages');
+      if (stored) {
+        try {
+          return JSON.parse(stored) as Message[];
+        } catch {
+          return [];
+        }
+      }
+    }
+    return [];
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Save messages to sessionStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('chat-messages', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const sendMessage = useCallback(async (content: string) => {
     const userMessage: Message = {
@@ -29,7 +48,7 @@ export function useMessages() {
           'Content-Type': 'application/json',
           'x-openai-key': apiKey || '',
         },
-        body: JSON.stringify({ message: content, history: messages }),
+        body: JSON.stringify({ message: content, history: [...messages, userMessage] }),
       });
 
       if (!response.ok) {

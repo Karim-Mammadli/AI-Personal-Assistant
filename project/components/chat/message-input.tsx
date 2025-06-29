@@ -36,7 +36,9 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      if (!isLoading) {
+        handleSubmit(e);
+      }
     }
   };
 
@@ -119,7 +121,6 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
               paddingTop: '12px',
               paddingBottom: '12px'
             }}
-            disabled={isLoading}
           />
           
           {/* Voice recording button inside textarea - vertically centered */}

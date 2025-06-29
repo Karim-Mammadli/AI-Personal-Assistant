@@ -201,8 +201,8 @@ export function ApiKeysTab() {
         })}
       </div>
 
-      {/* Save button - fixed at bottom */}
-      <div className="flex-shrink-0 w-full bg-black/90 pt-4 pb-4 flex justify-end z-20 border-t border-cyan-500/20 mt-4">
+      {/* Save Button Footer - always visible, outside scroll */}
+      <div className="w-full bg-black/90 pt-4 pb-4 flex justify-end z-20 border-t border-cyan-500/20 mt-4">
         <Button 
           type="button"
           onClick={handleSave}
